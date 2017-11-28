@@ -1,0 +1,3 @@
+# Ignore everything in this directory, used to save photos downloaded from camera
+*
+!.gitignore
