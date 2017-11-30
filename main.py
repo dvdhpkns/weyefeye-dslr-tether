@@ -21,8 +21,8 @@ class XSAlbum:
 
     def _get_files(self, limit=1000, start=0):
         # ex. http://10.98.32.1:8080/DCIM/101CANON/?image=1&limit=264&start=0&slot=0
-        resp = xs_request('%s/?image=1&limit=%s&start=%s&slot%s'  # image=1&
-                          % (self.get_album_path(), limit, start, self.slot))
+        url = '%s/?image=1&limit=%s&start=%s&slot=%s&image=1' % (self.get_album_path(), limit, start, self.slot)
+        resp = xs_request(url)
         if resp.status_code == 404:
             print("Failed attempt to get recent files - is XS connected to camera?")
             return []
@@ -48,7 +48,7 @@ class XSAlbum:
         return _files
 
     def __repr__(self):
-        return "Album(%s slot %s: %s files)" % (self.album_name, self.slot, len(self.files))
+        return "Album(%s slot %s)" % (self.album_name, self.slot)
 
     def __eq__(self, other):
         """Overrides the default implementation"""
@@ -62,7 +62,7 @@ class XSAlbum:
 
     def __hash__(self):
         """Needed for adding to set. File path contains all differentiating characteristics, so has on that"""
-        return hash((self.get_album_path()))
+        return hash((self.get_album_path() + self.slot))
 
 
 class XSFile:
