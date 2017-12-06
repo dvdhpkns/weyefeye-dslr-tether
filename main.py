@@ -178,23 +178,19 @@ def get_all_files():
 def sync_photos(files):
     """Save any new photos on camera locally, remove any photos that were deleted on camera"""
     try:
-        if not files:
-            big_log("initializing file list")
-            files = set(get_all_files())
-        else:
-            big_log("looking for file changes")
-            current_files = set(get_all_files())
-            # update only if there is a list of files
-            if current_files:
-                files_added = current_files - files
-                removed_files = files - current_files
-                print("%s files added, %s files removed" % (len(files_added), len(removed_files)))
-                for f in files_added:
-                    f.save_img()
-                for f in removed_files:
-                    if os.path.isfile(f.get_dest_path()):
-                        os.remove(f.get_dest_path())
-                files = current_files
+        big_log("looking for file changes")
+        current_files = set(get_all_files())
+        # update only if there is a list of files
+        if current_files:
+            files_added = current_files - files
+            removed_files = files - current_files
+            print("%s files added, %s files removed" % (len(files_added), len(removed_files)))
+            for f in files_added:
+                f.save_img()
+            for f in removed_files:
+                if os.path.isfile(f.get_dest_path()):
+                    os.remove(f.get_dest_path())
+            files = current_files
     except XSConnectionException as e:
         big_log(e.message)
 
@@ -207,10 +203,15 @@ def main():
 
     sync_enabled = True
     files = set()
+    initialized = False
 
     while sync_enabled:
         if is_connected_to_network():
-            files = sync_photos(files)
+            if not initialized:
+                big_log("initializing file list")
+                files = set(get_all_files())
+            else:
+                files = sync_photos(files)
         else:
             big_log("Not connected to WeyeFeye network")
         sleep(5)
